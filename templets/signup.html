@@ -1,0 +1,155 @@
+<!-- signup.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>3D Signup</title>
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(135deg, #3a3b47, #1f2027);
+      color: #eef;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      perspective: 800px;
+    }
+    form {
+      background: rgba(255,255,255,0.1);
+      padding: 2rem;
+      border-radius: 16px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+      width: 340px;
+      transform: rotateY(-6deg);
+      transition: transform 0.3s;
+    }
+    form:hover {
+      transform: rotateY(0deg) translateZ(20px);
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 1rem;
+      font-size: 2rem;
+      letter-spacing: 2px;
+      transform: rotateX(5deg);
+      text-shadow: 1px 1px 6px rgba(0,0,0,0.6);
+    }
+    .input-group { position: relative; margin-bottom: 1rem; }
+    input {
+      width: 100%;
+      padding: 0.9rem;
+      border: none;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.2);
+      color: #fff;
+      font-size: 1rem;
+      outline: none;
+      transition: background 0.2s, transform 0.2s;
+    }
+    input:focus {
+      background: rgba(255,255,255,0.3);
+      transform: translateZ(10px);
+    }
+    .toggle {
+      position: absolute;
+      right: 0.8rem;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+    }
+    .btn {
+      width: 100%;
+      padding: 1rem;
+      margin-top: 0.5rem;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      cursor: pointer;
+      background: linear-gradient(145deg, #6b7da3, #4a5b7a);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+      transform-style: preserve-3d;
+      transition: transform 0.2s, box-shadow 0.2s;
+      color: #eef;
+    }
+    .btn:hover {
+      transform: translateY(-4px) rotateX(4deg);
+      box-shadow: 0 12px 25px rgba(0,0,0,0.5);
+    }
+    #message {
+      margin-top: 1rem;
+      text-align: center;
+      height: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <form id="signup-form">
+    <h1>Sign Up</h1>
+    <div class="input-group">
+      <input type="text" id="name" placeholder="Full Name" required />
+    </div>
+    <div class="input-group">
+      <input type="email" id="email" placeholder="Email" required />
+    </div>
+    <div class="input-group">
+      <input type="password" id="password" placeholder="Password" required />
+      <span class="toggle" onclick="togglePassword('password')">👁️</span>
+    </div>
+    <div class="input-group">
+      <input type="password" id="confirm-password" placeholder="Re-enter Password" required />
+      <span class="toggle" onclick="togglePassword('confirm-password')">👁️</span>
+    </div>
+    <div class="input-group">
+      <input type="text" id="otp" placeholder="Enter OTP" style="display:none;" />
+    </div>
+    <button type="button" class="btn" onclick="sendOtp()">Send OTP</button>
+    <button type="button" class="btn" onclick="signup()" id="signup-button" style="display:none;">Sign Up</button>
+    <p id="message"></p>
+  </form>
+
+  <script>
+    function sendOtp() {
+      const email = document.getElementById("email").value;
+      fetch('/send-otp', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) })
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById("message").innerText = data.message;
+          if (data.success) {
+            document.getElementById("otp").style.display = "block";
+            document.getElementById("signup-button").style.display = "block";
+          }
+        });
+    }
+
+    function signup() {
+      const name = document.getElementById("name").value;
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      const confirmPassword = document.getElementById("confirm-password").value;
+      const otp = document.getElementById("otp").value;
+
+      if (password !== confirmPassword) {
+        document.getElementById("message").innerText = "Passwords do not match!";
+        return;
+      }
+
+      fetch('/signup', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, email, password, otp }) })
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById("message").innerText = data.message;
+          if (data.success) window.location.href = '/';
+        });
+    }
+
+    function togglePassword(fieldId) {
+      const field = document.getElementById(fieldId);
+      field.type = field.type === 'password' ? 'text' : 'password';
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,225 @@
+<!-- Updated index.html and signup.html with modern UI and 3D effects -->
+
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>3D Game Site</title>
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    /* Global Styles */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(135deg, #1e1f26, #3b3d4d);
+      color: #eef;
+      text-align: center;
+      height: 150vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      perspective: 1000px;
+    }
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 4px;
+      transform: rotateX(10deg);
+      text-shadow: 2px 2px 8px rgba(0,0,0,0.7);
+    }
+    .btn {
+      display: inline-block;
+      margin: 10px;
+      padding: 15px 30px;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+      transform-style: preserve-3d;
+      background: linear-gradient(145deg, #4e5d94, #37416f);
+      color: #eef;
+    }
+    .btn:hover {
+      transform: translateY(-4px) rotateX(5deg);
+      box-shadow: 0 12px 25px rgba(0,0,0,0.5);
+    }
+    .auth-container {
+      background: rgba(255,255,255,0.1);
+      padding: 2rem;
+      border-radius: 16px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+      transform: rotateX(5deg);
+    }
+    .auth-container input {
+      width: 100%;
+      margin: 0.5rem 0;
+      padding: 0.8rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      background: rgba(255,255,255,0.2);
+      color: #fff;
+      outline: none;
+      transition: background 0.2s;
+    }
+    .auth-container input:focus {
+      background: rgba(255,255,255,0.3);
+    }
+    #logout-button {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: #e94e77;
+    }
+    #game-section {
+      margin-top: 2rem;
+      transform: rotateX(5deg);
+    }
+    #game-section input {
+      width: 150px;
+      padding: 0.8rem;
+      border-radius: 8px;
+      border: none;
+      background: rgba(255,255,255,0.2);
+      color: #fff;
+      margin-right: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <button id="logout-button" class="btn" onclick="logout()" style="display:none;">Logout</button>
+  <h1>Welcome to the game "guess the number"</h1>
+
+  <div id="auth-section" class="auth-container">
+    <h2>Login or Sign Up</h2>
+    <input type="text" id="username" placeholder="Username" required />
+    <input type="password" id="password" placeholder="Password" required />
+    <button class="btn" onclick="login()">Login</button>
+    <button class="btn" onclick="signup()">Sign Up</button>
+    <p id="auth-message"></p>
+  </div>
+
+  <div id="developer-section" style="margin-top: 3cm;">
+    <h2>Know the Developers</h2>
+    <div style="display: flex; justify-content: center; gap: 3cm; margin-top: 2rem;">
+      <div style="text-align: center;">
+        <img src="/static/images/developer1.jpg" alt="Developer 1" style="width: 170px; height: 170px; border-radius: 50%; box-shadow: 0 8px 20px rgba(0,0,0,0.4);" />
+        <p style="margin-top: 1rem; font-size: 1.2rem;"><h3>Aditya Chaudhary</h3><br>Hello! I am a second-year B.Tech student at IMS Engineering College, Ghaziabad, <br> I have a passion for technology and innovation.<br> I have intermediate knowledge in HTML, CSS, Flask,<br> JavaScript, and SQLite, <br>and I'm always excited to expand my skill set.<br> My keen interest in cybersecurity drives me to explore<br> the intricacies of digital safety and ethical hacking. <br>I strive to blend my coding skills with a strong foundation in security principles <br>to create impactful projects</p>
+      </div>
+      <div style="text-align: center;">
+        <img src="/static/images/developer2.jpg" alt="Developer 2" style="width: 150px; height: 150px; border-radius: 50%; box-shadow: 0 8px 20px rgba(0,0,0,0.4);" />
+        <p style="margin-top: 1rem; font-size: 1.2rem;">Developer 2</p>
+      </div>
+    </div>
+  </div>
+
+  <button onclick="startGame()" id="start-button" class="btn" style="display:none;">Start</button>
+
+  <div id="game-section" style="display:none;">
+    <p>Logged in as <span id="current-user"></span></p>
+    <input type="number" id="guessInput" placeholder="Enter 4-digit" />
+    <button class="btn" onclick="submitGuess()">Submit</button>
+    <p id="message"></p>
+    <button class="btn" onclick="quitGame()">Quit</button>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("auth-section").style.display = 'block';
+    });
+
+    function login() {
+      const username = document.getElementById("username").value;
+      const password = document.getElementById("password").value;
+
+      fetch('/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+        credentials: 'include'
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          document.getElementById("auth-section").style.display = "none";
+          document.getElementById("start-button").style.display = "inline-block";
+          document.getElementById("logout-button").style.display = "block";
+          document.getElementById("current-user").innerText = username;
+          document.getElementById("developer-section").style.display = "none";
+        } else {
+          document.getElementById("auth-message").innerText = data.message;
+        }
+      });
+    }
+
+    function signup() {
+      window.location.href = '/signup-page';
+    }
+
+    function logout() {
+      fetch('/logout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include'
+      })
+      .then(() => {
+        document.getElementById("developer-section").style.display = "block";
+        location.reload();
+      });
+    }
+
+    function startGame() {
+      fetch('/start-game', {
+        method: 'GET',
+        credentials: 'include'
+      })
+      .then(response => response.json())
+      .then(data => {
+        alert(data.message);
+        document.getElementById("start-button").style.display = "none";
+        document.getElementById("game-section").style.display = "block";
+        document.getElementById("logout-button").style.display = "block";
+      });
+    }
+
+    function submitGuess() {
+      const guess = document.getElementById("guessInput").value;
+
+      fetch('/guess', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ guess }),
+        credentials: 'include'
+      })
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById("message").innerText = data.message;
+        if (data.result === "correct") {
+          alert("🎉 You won!");
+        }
+      });
+    }
+
+    function quitGame() {
+      fetch('/quit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include'
+      })
+      .then(response => response.json())
+      .then(data => {
+        alert(data.message);
+        document.getElementById("game-section").style.display = "none";
+        document.getElementById("start-button").style.display = "inline-block";
+      });
+    }
+  </script>
+</body>
+</html>
