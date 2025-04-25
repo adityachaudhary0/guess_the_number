@@ -37,7 +37,7 @@ def send_otp():
             server.set_debuglevel(1)  # Enable debug output for SMTP
             server.starttls()
             server.login('brainbite09@gmail.com', 'kfnc xyra ecod pnsd')  # Replace with your App Password
-            message = f"Subject: Your OTP\n\n bhosdike otp ha daal na gand me dalega kya isse Your OTP is {otp}."
+            message = f"Subject: Your OTP\n\n Your OTP is {otp}.Please do not share this with Anyone"
             server.sendmail('brainbite09@gmail.com', email, message)
             print(f"OTP {otp} sent to {email}")  # Debug log to confirm email was sent
 
